@@ -777,6 +777,8 @@ void Connection::update() {
 			} else {
 				wifiProvisioning.stopProvisioning();
 			}
+
+			break;
 		}
 	}
 }
