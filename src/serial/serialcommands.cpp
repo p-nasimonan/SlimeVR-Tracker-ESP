@@ -38,7 +38,7 @@
 namespace SerialCommands {
 SlimeVR::Logging::Logger logger("SerialCommands");
 
-CmdCallback<6> cmdCallbacks;
+CmdCallback<7> cmdCallbacks;
 CmdParser cmdParser;
 CmdBuffer<256> cmdBuffer;
 
@@ -302,8 +302,8 @@ void cmdGet(CmdParser* parser) {
 		if (WiFi.status() != WL_CONNECTED) {
 			WiFi.disconnect();
 		}
-		if (wifiProvisioning.isProvisioning()) {
-			wifiProvisioning.stopProvisioning();
+		if (wifiProvisioning.isSearching()) {
+			wifiProvisioning.stopSearchForProvisioner();
 		}
 
 		WiFi.scanNetworks();
@@ -412,6 +412,18 @@ void cmdDeleteCalibration(CmdParser* parser) {
 	configuration.eraseSensors();
 }
 
+void cmdStart(CmdParser* parser) {
+	if (parser->getParamCount() == 1) {
+		logger.info("Usage:");
+		logger.info("  START PROVISION: start wifi provisioning");
+		return;
+	}
+
+	if (parser->equalCmdParam(1, "PROVISION")) {
+		wifiProvisioning.startProvisioning();
+	}
+}
+
 void setUp() {
 	cmdCallbacks.addCmd("SET", &cmdSet);
 	cmdCallbacks.addCmd("GET", &cmdGet);
@@ -419,6 +431,7 @@ void setUp() {
 	cmdCallbacks.addCmd("REBOOT", &cmdReboot);
 	cmdCallbacks.addCmd("DELCAL", &cmdDeleteCalibration);
 	cmdCallbacks.addCmd("TCAL", &cmdTemperatureCalibration);
+	cmdCallbacks.addCmd("START", &cmdStart);
 }
 
 void update() { cmdCallbacks.updateCmdProcessing(&cmdParser, &cmdBuffer, &Serial); }
