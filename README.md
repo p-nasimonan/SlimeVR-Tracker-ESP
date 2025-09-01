@@ -122,3 +122,11 @@ authored by you. If you're doing so on your work time, you certify that your emp
 okay with this and that you are authorized to provide the above licenses.
 
 For an explanation on how to contribute, see [`CONTRIBUTING.md`](CONTRIBUTING.md)
+
+
+
+## 書き込み方法
+bootボタンを押しながら一度resetボタンを押して書き込み
+書き込みが始まったら手を放してよい。
+
+一度pcから外して再度つけると使えるようになる。
