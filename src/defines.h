@@ -27,13 +27,13 @@
 
 // Set parameters of IMU and board used
 #ifndef IMU
-#define IMU IMU_AUTO
+#define IMU IMU_MPU6050
 #endif
 #ifndef SECOND_IMU
-#define SECOND_IMU IMU_AUTO
+#define SECOND_IMU IMU_MPU6050
 #endif
 #ifndef BOARD
-#define BOARD BOARD_SLIMEVR_V1_2
+#define BOARD BOARD_CUSTOM
 #endif
 #ifndef IMU_ROTATION
 #define IMU_ROTATION DEG_270
@@ -49,10 +49,20 @@
 #define SECONDARY_IMU_OPTIONAL true
 #endif
 
+#ifndef MAX_IMU_COUNT
+#define MAX_IMU_COUNT 2
+#endif
+
+#ifndef IMU_DESC_LIST
+#define IMU_DESC_LIST \
+    IMU_DESC_ENTRY(IMU, PRIMARY_IMU_ADDRESS_ONE, IMU_ROTATION, DIRECT_WIRE(PIN_IMU_SCL, PIN_IMU_SDA), PRIMARY_IMU_OPTIONAL, DIRECT_PIN(255), 0) \
+    IMU_DESC_ENTRY(SECOND_IMU, SECONDARY_IMU_ADDRESS_TWO, SECOND_IMU_ROTATION, DIRECT_WIRE(PIN_IMU_SCL, PIN_IMU_SDA), SECONDARY_IMU_OPTIONAL, DIRECT_PIN(255), 0)
+#endif
+
 // Set I2C address here or directly in IMU_DESC_ENTRY for each IMU used
 // If not set, default address is used based on the IMU and Sensor ID
-// #define PRIMARY_IMU_ADDRESS_ONE 0x4a
-// #define SECONDARY_IMU_ADDRESS_TWO 0x4b
+#define PRIMARY_IMU_ADDRESS_ONE 0x68
+#define SECONDARY_IMU_ADDRESS_TWO 0x69
 
 #ifndef BATTERY_MONITOR
 // Battery monitoring options (comment to disable):

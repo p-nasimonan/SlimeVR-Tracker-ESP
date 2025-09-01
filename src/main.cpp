@@ -57,12 +57,33 @@ BatteryMonitor battery;
 TPSCounter tpsCounter;
 
 void setup() {
+#ifdef ESP32C3
+	// ESP32-C3 USB CDC initialization
+	delay(2000);
+	Serial.begin(115200);
+	delay(1000);
+	
+	// Force serial output
+	for(int i = 0; i < 10; i++) {
+		Serial.println("SlimeVR ESP32-C3 Starting...");
+		Serial.flush();
+		delay(500);
+	}
+	
+	while (!Serial && millis() < 5000) {
+		delay(10);
+	}
+#else
 	Serial.begin(serialBaudRate);
+#endif
 	globalTimer = timer_create_default();
 
 	Serial.println();
 	Serial.println();
 	Serial.println();
+	Serial.println("=== ESP32-C3 SlimeVR Debug Output ===");
+	Serial.println("Serial communication established!");
+	Serial.flush();
 
 	logger.info("SlimeVR v" FIRMWARE_VERSION " starting up...");
 
