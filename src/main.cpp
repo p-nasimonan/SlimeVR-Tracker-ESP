@@ -22,6 +22,7 @@
 */
 
 #include <i2cscan.h>
+#include <WiFi.h>
 
 #include "GlobalVars.h"
 #include "Wire.h"
@@ -33,6 +34,10 @@
 #include "ota.h"
 #include "serial/serialcommands.h"
 #include "status/TPSCounter.h"
+
+#ifdef DISPLAY_ENABLED
+#include "DisplayHelper.h"
+#endif
 
 Timer<> globalTimer;
 SlimeVR::Logging::Logger logger("SlimeVR");
@@ -86,6 +91,12 @@ void setup() {
 	Serial.flush();
 
 	logger.info("SlimeVR v" FIRMWARE_VERSION " starting up...");
+
+#ifdef DISPLAY_ENABLED
+	Serial.println("Initializing display...");
+	displayInit();
+	Serial.println("Display initialized!");
+#endif
 
 	char vendorBuffer[512];
 	size_t writtenLength;
@@ -189,6 +200,33 @@ void loop() {
 	battery.Loop();
 	ledManager.update();
 	I2CSCAN::update();
+
+#ifdef DISPLAY_ENABLED
+	// Update display every 1 second
+	static unsigned long lastDisplayUpdate = 0;
+	unsigned long now = millis();
+	if (now - lastDisplayUpdate > 1000) {
+		lastDisplayUpdate = now;
+		
+		// Get WiFi SSID
+		String wifiSSID = WiFi.SSID();
+		
+		// Check SlimeVR connection status
+		bool slimevrConnected = networkConnection.isConnected();
+		
+		// Get battery voltage
+		float batteryVoltage = battery.getVoltage();
+		if (batteryVoltage < 0) {
+			// No battery monitoring available, use simulated value
+			batteryVoltage = 3.7;
+		}
+		
+		Serial.printf("Display update: WiFi=%s, SlimeVR=%s, Battery=%.2fV\n", 
+			wifiSSID.c_str(), slimevrConnected ? "Connected" : "Disconnected", batteryVoltage);
+		displayShowDetailedStatus(wifiSSID.c_str(), slimevrConnected, batteryVoltage);
+	}
+#endif
+
 #ifdef TARGET_LOOPTIME_MICROS
 	long elapsed = (micros() - loopTime);
 	if (elapsed < TARGET_LOOPTIME_MICROS) {
@@ -206,9 +244,9 @@ void loop() {
 	loopTime = micros();
 #endif
 #if defined(PRINT_STATE_EVERY_MS) && PRINT_STATE_EVERY_MS > 0
-	unsigned long now = millis();
-	if (lastStatePrint + PRINT_STATE_EVERY_MS < now) {
-		lastStatePrint = now;
+	unsigned long now2 = millis();
+	if (lastStatePrint + PRINT_STATE_EVERY_MS < now2) {
+		lastStatePrint = now2;
 		SerialCommands::printState();
 	}
 #endif
