@@ -23,6 +23,7 @@
 #include "GlobalVars.h"
 #include "globals.h"
 #include "logging/Logger.h"
+#include "wifiprovisioning.h"
 #if !ESP8266
 #include "esp_wifi.h"
 #endif
@@ -273,4 +274,53 @@ void WiFiNetwork::upkeep() {
 		}
 	}
 	return;
+}
+
+const char* WiFiNetwork::getWiFiStatusString() {
+	static char ssidBuffer[33]; // WiFi SSIDの最大長は32文字+null終端
+	
+	if (WiFi.isConnected()) {
+		String ssid = WiFi.SSID();
+		strncpy(ssidBuffer, ssid.c_str(), sizeof(ssidBuffer) - 1);
+		ssidBuffer[sizeof(ssidBuffer) - 1] = '\0';
+		return ssidBuffer;
+	}
+	
+	wl_status_t status = WiFi.status();
+	switch (status) {
+		case WL_NO_SHIELD: return "No Shield";
+		case WL_IDLE_STATUS: return "Idle";
+		case WL_NO_SSID_AVAIL: return "No SSID";
+		case WL_SCAN_COMPLETED: return "Scan Done";
+		case WL_CONNECTED: return "Connected";
+		case WL_CONNECT_FAILED: return "Failed";
+		case WL_CONNECTION_LOST: return "Lost";
+		case WL_DISCONNECTED: return "Disconnected";
+		default: return "Unknown";
+	}
+}
+
+const char* WiFiNetwork::getProvisioningStatusString() {
+	extern bool provisioning;  // wifiprovisioning.cppで定義されている変数
+	
+	if (isProvisioning()) {
+		return "SmartConfig";
+	}
+	
+	// WiFi認証情報の状態を確認
+	String ssid = WiFi.SSID();
+	String psk = WiFi.psk();
+	
+	if (ssid.length() == 0 && psk.length() == 0) {
+		return "No Creds";
+	} else if (ssid.length() == 0) {
+		return "No SSID";
+	} else {
+		switch (wifiState) {
+			case SLIME_WIFI_SAVED_ATTEMPT: return "Saved";
+			case SLIME_WIFI_HARDCODE_ATTEMPT: return "Hardcode";
+			case SLIME_WIFI_SERVER_CRED_ATTEMPT: return "Server";
+			default: return "Ready";
+		}
+	}
 }

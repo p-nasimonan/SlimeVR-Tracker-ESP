@@ -38,6 +38,7 @@
 #ifdef DISPLAY_ENABLED
 #include "DisplayHelper.h"
 #endif
+#include "network/wifihandler.h"
 
 Timer<> globalTimer;
 SlimeVR::Logging::Logger logger("SlimeVR");
@@ -64,20 +65,8 @@ TPSCounter tpsCounter;
 void setup() {
 #ifdef ESP32C3
 	// ESP32-C3 USB CDC initialization
-	delay(2000);
-	Serial.begin(115200);
 	delay(1000);
-	
-	// Force serial output
-	for(int i = 0; i < 10; i++) {
-		Serial.println("SlimeVR ESP32-C3 Starting...");
-		Serial.flush();
-		delay(500);
-	}
-	
-	while (!Serial && millis() < 5000) {
-		delay(10);
-	}
+	Serial.begin(serialBaudRate);
 #else
 	Serial.begin(serialBaudRate);
 #endif
@@ -208,22 +197,19 @@ void loop() {
 	if (now - lastDisplayUpdate > 1000) {
 		lastDisplayUpdate = now;
 		
-		// Get WiFi SSID
-		String wifiSSID = WiFi.SSID();
+		// Get WiFi status
+		const char* wifiStatus = WiFiNetwork::getWiFiStatusString();
 		
-		// Check SlimeVR connection status
-		bool slimevrConnected = networkConnection.isConnected();
+		// Get provisioning/auth status
+		const char* provisioningStatus = WiFiNetwork::getProvisioningStatusString();
 		
 		// Get battery voltage
 		float batteryVoltage = battery.getVoltage();
 		if (batteryVoltage < 0) {
-			// No battery monitoring available, use simulated value
+			// No battery monitoring available, use default value
 			batteryVoltage = 3.7;
 		}
-		
-		Serial.printf("Display update: WiFi=%s, SlimeVR=%s, Battery=%.2fV\n", 
-			wifiSSID.c_str(), slimevrConnected ? "Connected" : "Disconnected", batteryVoltage);
-		displayShowDetailedStatus(wifiSSID.c_str(), slimevrConnected, batteryVoltage);
+		displayShowWiFiStatus(wifiStatus, provisioningStatus, batteryVoltage);
 	}
 #endif
 
