@@ -1,8 +1,9 @@
 #include "DisplayHelper.h"
 #include <Wire.h>
 #include <WiFi.h>
+#include "defines.h"
 
-U8G2_SSD1306_72X40_ER_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, 6, 5);
+U8G2_SSD1306_72X40_ER_F_SW_I2C u8g2(U8G2_R0, PIN_OLED_SCL, PIN_OLED_SDA, U8X8_PIN_NONE);
 
 void displayInit() {
     u8g2.begin();

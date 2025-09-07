@@ -101,10 +101,10 @@ BATTERY(A0)
 // Define pins by the examples above
 SDA(5)
 SCL(6)
-INT(255)
-INT2(255)
+INT(4)
+INT2(3)
 BATTERY(0)
-LED(8)
+LED(255)
 INVERTED_LED(false)
 
 #elif BOARD == BOARD_WROOM32

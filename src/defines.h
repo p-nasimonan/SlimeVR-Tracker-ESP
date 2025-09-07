@@ -27,10 +27,10 @@
 
 // Set parameters of IMU and board used
 #ifndef IMU
-#define IMU IMU_MPU6050
+#define IMU IMU_LSM6DS3TRC
 #endif
 #ifndef SECOND_IMU
-#define SECOND_IMU IMU_MPU6050
+#define SECOND_IMU IMU_LSM6DS3TRC
 #endif
 #ifndef BOARD
 #define BOARD BOARD_CUSTOM
@@ -61,8 +61,8 @@
 
 // Set I2C address here or directly in IMU_DESC_ENTRY for each IMU used
 // If not set, default address is used based on the IMU and Sensor ID
-#define PRIMARY_IMU_ADDRESS_ONE 0x68
-#define SECONDARY_IMU_ADDRESS_TWO 0x69
+#define PRIMARY_IMU_ADDRESS_ONE 0x6A
+#define SECONDARY_IMU_ADDRESS_TWO 0x6B
 
 #ifndef BATTERY_MONITOR
 // Battery monitoring options (comment to disable):
@@ -74,8 +74,10 @@
 
 // --- OVERRIDES FOR DEFAULT PINS
 
-#define PIN_IMU_SDA 5
-#define PIN_IMU_SCL 6
+#define PIN_IMU_SDA 8
+#define PIN_IMU_SCL 9
+#define PIN_OLED_SDA 5
+#define PIN_OLED_SCL 6
 // #define PIN_IMU_INT 16
 // #define PIN_IMU_INT_2 13
 // #define PIN_BATTERY_LEVEL 17
