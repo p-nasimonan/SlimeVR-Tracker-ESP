@@ -191,24 +191,50 @@ void loop() {
 	I2CSCAN::update();
 
 #ifdef DISPLAY_ENABLED
-	// Update display every 1 second
+	// Battery threshold-based display update
+	static float lastBatteryVoltage = -1.0;
 	static unsigned long lastDisplayUpdate = 0;
+	static String lastWifiStatus = "";
+	static String lastProvisioningStatus = "";
+	
 	unsigned long now = millis();
-	if (now - lastDisplayUpdate > 1000) {
+	bool shouldUpdate = false;
+	
+	// Get current values
+	const char* wifiStatus = WiFiNetwork::getWiFiStatusString();
+	const char* provisioningStatus = WiFiNetwork::getProvisioningStatusString();
+	float batteryVoltage = battery.getVoltage();
+	if (batteryVoltage < 0) {
+		batteryVoltage = 3.7; // Default value when no battery monitoring
+	}
+	
+	// Check if battery voltage changed significantly (threshold: 0.05V)
+	if (lastBatteryVoltage < 0 || abs(batteryVoltage - lastBatteryVoltage) > 0.05) {
+		shouldUpdate = true;
+		lastBatteryVoltage = batteryVoltage;
+	}
+	
+	// Check if WiFi status changed
+	if (lastWifiStatus != String(wifiStatus)) {
+		shouldUpdate = true;
+		lastWifiStatus = String(wifiStatus);
+	}
+	
+	// Check if provisioning status changed
+	if (lastProvisioningStatus != String(provisioningStatus)) {
+		shouldUpdate = true;
+		lastProvisioningStatus = String(provisioningStatus);
+	}
+	
+	// Force update every 30 seconds regardless
+	if (now - lastDisplayUpdate > 30000) {
+		shouldUpdate = true;
+	}
+	
+	if (shouldUpdate) {
 		lastDisplayUpdate = now;
-		
-		// Get WiFi status
-		const char* wifiStatus = WiFiNetwork::getWiFiStatusString();
-		
-		// Get provisioning/auth status
-		const char* provisioningStatus = WiFiNetwork::getProvisioningStatusString();
-		
-		// Get battery voltage
-		float batteryVoltage = battery.getVoltage();
-		if (batteryVoltage < 0) {
-			// No battery monitoring available, use default value
-			batteryVoltage = 3.7;
-		}
+		Serial.printf("Display update: WiFi=%s, Provisioning=%s, Battery=%.2fV\n", 
+			wifiStatus, provisioningStatus, batteryVoltage);
 		displayShowWiFiStatus(wifiStatus, provisioningStatus, batteryVoltage);
 	}
 #endif

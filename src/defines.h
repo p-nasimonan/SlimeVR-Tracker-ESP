@@ -80,11 +80,11 @@
 #define PIN_OLED_SCL 6
 // #define PIN_IMU_INT 16
 // #define PIN_IMU_INT_2 13
-// #define PIN_BATTERY_LEVEL 17
+#define PIN_BATTERY_LEVEL 0
 // #define LED_PIN 2
 // #define LED_INVERTED true
-// #define BATTERY_SHIELD_RESISTANCE 0
-// #define BATTERY_SHIELD_R1 10
-// #define BATTERY_SHIELD_R2 40.2
+#define BATTERY_SHIELD_RESISTANCE 0
+#define BATTERY_SHIELD_R1 100
+#define BATTERY_SHIELD_R2 220
 
 // ------------------------------
